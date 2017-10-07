@@ -11,11 +11,30 @@ public class DatabaseService {
 
     public String parseCommandline(String... args) {
 
-        System.out.println("prop1 =" + prop1);
-        System.out.println("args = ");
-        for (String arg: args) {
-            System.out.println(arg);
+        if (args.length > 0) {
+            switch (args[0]) {
+                case "setITAdmin":
+                    System.out.println("setITAdmin");
+                    break;
+                case "loadData":
+                    System.out.println("loadData");
+                    break;
+                case "getBackupCfg":
+                    System.out.println("getBackupCfg");
+                    break;
+                case "loadBackupCfg":
+                    System.out.println("loadBackupCfg");
+                    break;
+                case "DumpDB":
+                    System.out.println("DumpDB");
+                    break;
+                default:
+                    System.out.println("Invalid commandline, options are: <setITAdmin|loadData|getBackupCfg|loadBackupCfg|DumpDB");
+            }
         }
+        else {
+            System.out.println("No commandline parameters specified.");
+            }
 
         return "";
     }
