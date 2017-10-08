@@ -1,12 +1,11 @@
 package edu.syr.cyberseed.sage.sagebackdoorclient.services;
 
 import com.thoughtworks.xstream.XStream;
-import edu.syr.cyberseed.sage.sagebackdoorclient.entities.DBFile;
-import edu.syr.cyberseed.sage.sagebackdoorclient.entities.SystemAdministratorUserProfile;
-import edu.syr.cyberseed.sage.sagebackdoorclient.entities.User;
+import edu.syr.cyberseed.sage.sagebackdoorclient.entities.*;
 import edu.syr.cyberseed.sage.sagebackdoorclient.repositories.UserRepository;
 import flexjson.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.ast.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,12 +88,7 @@ public class DatabaseService {
                     //String filenameAndPath = args[1];
                     String filenameAndPath = "/tmp/file.xml";
 
-                    if (resourceLoader == null)  {
-                        System.out.println("resource loader is null");
-                    }
-                    else {
-                        System.out.println("resource loader is not null");
-                    }
+                    // Create inputstream from spring Resource
                     Resource xmlFileResource = resourceLoader.getResource("file:" + filenameAndPath);
                     InputStream inputStream = null;
                     try {
@@ -106,10 +100,20 @@ public class DatabaseService {
                         return "";
                     }
 
-                    // Parse the file
+                    // Parse the file via inputstream
                     XStream xstream = new XStream();
                     xstream.processAnnotations(DBFile.class);
                     xstream.processAnnotations(SystemAdministratorUserProfile.class);
+                    xstream.processAnnotations(DoctorUserProfile.class);
+                    xstream.processAnnotations(NurseUserProfile.class);
+                    xstream.processAnnotations(MedicalAdministratorUserProfile.class);
+                    xstream.processAnnotations(InsuranceAdministratorUserProfile.class);
+                    xstream.processAnnotations(PatientUserProfile.class);
+                    xstream.processAnnotations(DoctorExamRecord.class);
+                    xstream.processAnnotations(DiagnosisRecord.class);
+                    xstream.processAnnotations(TestResultsRecord.class);
+                    xstream.processAnnotations(InsuranceClaimRecord.class);
+                    xstream.processAnnotations(RawRecord.class);
                     DBFile dbFile = null;
                     try {
                         dbFile = (DBFile) xstream.fromXML(inputStream);
@@ -121,10 +125,31 @@ public class DatabaseService {
                         return "";
                     }
 
-                    // Extract lists of objects to store
+                    // Extract lists of user objects to store
                     List<SystemAdministratorUserProfile> sysAdminUserProfiles = dbFile.getSysAdminUserProfiles();
+                    List<DoctorUserProfile> doctorUserProfiles = dbFile.getDoctorUserProfiles();
+                    List<NurseUserProfile> nurseUserProfiles = dbFile.getNurseUserProfiles();
+                    List<MedicalAdministratorUserProfile> medAdminUserProfiles = dbFile.getMedAdminUserProfiles();
+                    List<InsuranceAdministratorUserProfile> insAdminUserProfiles = dbFile.getInsAdminUserProfiles();
+                    List<PatientUserProfile> patientUserProfiles = dbFile.getPatientUserProfiles();
+                    System.out.println("Importing " + sysAdminUserProfiles.size() + " System Administrators");
+                    System.out.println("Importing " + doctorUserProfiles.size() + " Doctors");
+                    System.out.println("Importing " + nurseUserProfiles.size() + " Nurses");
+                    System.out.println("Importing " + medAdminUserProfiles.size() + " Medical Administrators");
+                    System.out.println("Importing " + insAdminUserProfiles.size() + " Insurance Administrators");
+                    System.out.println("Importing " + patientUserProfiles.size() + " Patients");
 
-                    System.out.println("Number of admins = " + sysAdminUserProfiles.size());
+                    // Extract lists of record objects to store
+                   List<DoctorExamRecord> doctorExamRecords = dbFile.getDoctorExamRecords();
+                   List<DiagnosisRecord> diagnosisRecords = dbFile.getDiagnosisRecords();
+                   List<TestResultsRecord> testResultsRecords = dbFile.getTestResultsRecords();
+                   List<InsuranceClaimRecord> insuranceClaimRecords = dbFile.getInsuranceClaimRecords();
+                   List<RawRecord> rawRecords = dbFile.getRawRecords();
+                    System.out.println("Importing " + doctorExamRecords.size() + " Doctor Exam Records");
+                    System.out.println("Importing " + diagnosisRecords.size() + " Diagnosis Records");
+                    System.out.println("Importing " + testResultsRecords.size() + " Test Result Records");
+                    System.out.println("Importing " + insuranceClaimRecords.size() + " Insurance Claim Records");
+                    System.out.println("Importing " + rawRecords.size() + " Raw Records");
 
                     break;
 

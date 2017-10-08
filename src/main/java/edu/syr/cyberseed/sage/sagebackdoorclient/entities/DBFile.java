@@ -11,12 +11,38 @@ import java.util.List;
 @XStreamAlias("DBFile")
 public class DBFile {
 
-    // Here is something more complicated. If we have list of elements that are
-    // not wrapped in a element representing a list (like we have in our XML:
-    // multiple <ban> elements not wrapped inside <bans> collection,
-    // we have to declare that we want to treat these elements as an implicit list
-    // so they can be converted to List of objects.
     @XStreamImplicit(itemFieldName = "SystemAdministratorUserProfile")
     private List sysAdminUserProfiles = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "DoctorUserProfile")
+    private List doctorUserProfiles = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "NurseUserProfile")
+    private List nurseUserProfiles = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "MedicalAdministratorUserProfile")
+    private List medAdminUserProfiles = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "InsuranceAdministratorUserProfile")
+    private List InsAdminUserProfiles = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "PatientUserProfile")
+    private List patientUserProfiles = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "DoctorExamRecord")
+    private List doctorExamRecords = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "DiagnosisRecord")
+    private List diagnosisRecords = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "TestResultsRecord")
+    private List testResultsRecords = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "InsuranceClaimRecord")
+    private List insuranceClaimRecords = new ArrayList();
+
+    @XStreamImplicit(itemFieldName = "RawRecord")
+    private List rawRecords = new ArrayList();
+
 }
 
