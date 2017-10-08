@@ -1,43 +1,53 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package edu.syr.cyberseed.sage.sagebackdoorclient.entities;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.Date;
+
+/**
+ *
+ * @author DhruvVerma
+ */
+@Entity
+@Table(name = "record_insurance")
 @Data
-@XStreamAlias("InsuranceClaimRecord")
 public class InsuranceClaimRecord {
 
-    @XStreamAlias("RecordID")
-    private String recordId;
+    @Id
+    @Column(name = "id")
+    private Integer id;
 
-    @XStreamAlias("RecordType")
-    private String recordType;
+    @Column(name = "date")
+    private Date date;
 
-    @XStreamAlias("RecordDate")
-    private String recordDate;
+    @Column(name = "madmin")
+    private String madmin;
 
-    @XStreamAlias("Owner")
-    private String owner;
+    @Column(name = "amount")
+    private Float amount;
 
-    @XStreamAlias("Patient")
-    private String patient;
-
-    @XStreamAlias("EditPermissions")
-    private String editPermissions;
-
-    @XStreamAlias("ViewPermissions")
-    private String viewPermissions;
-
-    @XStreamAlias("Date")
-    private String date;
-
-    @XStreamAlias("MedicalAdministrator")
-    private String medicalAdministrator;
-
-    @XStreamAlias("Amount")
-    private String amount;
-
-    @XStreamAlias("Status")
+    @Column(name = "status")
     private String status;
 
+
+    protected InsuranceClaimRecord()
+    {
+
+    }
+    public InsuranceClaimRecord(Integer id, String admin, Date date, String status, Float amount) {
+        this.id = id;
+        this.madmin = admin;
+        this.date = date;
+        this.status = status;
+        this.amount=amount;
+    }
 }

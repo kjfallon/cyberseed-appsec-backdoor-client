@@ -2,10 +2,10 @@ package edu.syr.cyberseed.sage.sagebackdoorclient.services;
 
 import com.thoughtworks.xstream.XStream;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.*;
+import edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.*;
 import edu.syr.cyberseed.sage.sagebackdoorclient.repositories.UserRepository;
 import flexjson.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.weaver.ast.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -105,23 +103,23 @@ public class DatabaseService {
                     XStream xstream = new XStream();
                     XStream.setupDefaultSecurity(xstream); // to be removed after 1.5
                     xstream.allowTypesByWildcard(new String[] {
-                            "edu.syr.cyberseed.sage.sagebackdoorclient.entities.**"
+                            "edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.**"
                     });
-                    xstream.processAnnotations(DBFile.class);
-                    xstream.processAnnotations(SystemAdministratorUserProfile.class);
-                    xstream.processAnnotations(DoctorUserProfile.class);
-                    xstream.processAnnotations(NurseUserProfile.class);
-                    xstream.processAnnotations(MedicalAdministratorUserProfile.class);
-                    xstream.processAnnotations(InsuranceAdministratorUserProfile.class);
-                    xstream.processAnnotations(PatientUserProfile.class);
-                    xstream.processAnnotations(DoctorExamRecord.class);
-                    xstream.processAnnotations(DiagnosisRecord.class);
-                    xstream.processAnnotations(TestResultsRecord.class);
-                    xstream.processAnnotations(InsuranceClaimRecord.class);
-                    xstream.processAnnotations(PatientDoctorCorrespondenceRecord.class);
-                    xstream.processAnnotations(Notes.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DBFile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.SystemAdministratorUserProfile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorUserProfile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.NurseUserProfile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.MedicalAdministratorUserProfile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceAdministratorUserProfile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientUserProfile.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorExamRecord.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DiagnosisRecord.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.TestResultsRecord.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceClaimRecord.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientDoctorCorrespondenceRecord.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.Notes.class);
                     xstream.processAnnotations(Note.class);
-                    xstream.processAnnotations(RawRecord.class);
+                    xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.RawRecord.class);
                     DBFile dbFile = null;
                     try {
                         dbFile = (DBFile) xstream.fromXML(inputStream);
@@ -134,12 +132,12 @@ public class DatabaseService {
                     }
 
                     // Extract lists of user objects to store
-                    List<SystemAdministratorUserProfile> sysAdminUserProfiles = new ArrayList<SystemAdministratorUserProfile>();
-                    List<DoctorUserProfile> doctorUserProfiles = new ArrayList<DoctorUserProfile>();
-                    List<NurseUserProfile> nurseUserProfiles = new ArrayList<NurseUserProfile>();
-                    List<MedicalAdministratorUserProfile> medAdminUserProfiles = new ArrayList<MedicalAdministratorUserProfile>();
-                    List<InsuranceAdministratorUserProfile> insAdminUserProfiles = new ArrayList<InsuranceAdministratorUserProfile>();
-                    List<PatientUserProfile> patientUserProfiles = new ArrayList<PatientUserProfile>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.SystemAdministratorUserProfile> sysAdminUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.SystemAdministratorUserProfile>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorUserProfile> doctorUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorUserProfile>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.NurseUserProfile> nurseUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.NurseUserProfile>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.MedicalAdministratorUserProfile> medAdminUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.MedicalAdministratorUserProfile>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceAdministratorUserProfile> insAdminUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceAdministratorUserProfile>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientUserProfile> patientUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientUserProfile>();
                     if (dbFile.getSysAdminUserProfiles() != null )
                         sysAdminUserProfiles = dbFile.getSysAdminUserProfiles();
                     if (dbFile.getDoctorUserProfiles() != null )
@@ -160,12 +158,12 @@ public class DatabaseService {
                     System.out.println("Importing " + patientUserProfiles.size() + " Patients");
 
                     // Extract lists of record objects to store
-                    List<DoctorExamRecord> doctorExamRecords = new ArrayList<DoctorExamRecord>();
-                    List<DiagnosisRecord> diagnosisRecords = new ArrayList<DiagnosisRecord>();
-                    List<TestResultsRecord> testResultsRecords = new ArrayList<TestResultsRecord>();
-                    List<InsuranceClaimRecord> insuranceClaimRecords = new ArrayList<InsuranceClaimRecord>();
-                    List<PatientDoctorCorrespondenceRecord> patientDoctorCorrespondenceRecords = new ArrayList<PatientDoctorCorrespondenceRecord>();
-                    List<RawRecord> rawRecords = new ArrayList<RawRecord>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorExamRecord> doctorExamRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorExamRecord>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DiagnosisRecord> diagnosisRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DiagnosisRecord>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.TestResultsRecord> testResultsRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.TestResultsRecord>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceClaimRecord> insuranceClaimRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceClaimRecord>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientDoctorCorrespondenceRecord> patientDoctorCorrespondenceRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientDoctorCorrespondenceRecord>();
+                    List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.RawRecord> rawRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.RawRecord>();
 
                     if (dbFile.getDoctorExamRecords() != null )
                         doctorExamRecords = dbFile.getDoctorExamRecords();
@@ -185,6 +183,8 @@ public class DatabaseService {
                     System.out.println("Importing " + insuranceClaimRecords.size() + " Insurance Claim Records");
                     System.out.println("Importing " + patientDoctorCorrespondenceRecords.size() + " Patient Doctor Correspondence Records");
                     System.out.println("Importing " + rawRecords.size() + " Raw Records");
+
+                    // write Users to database
 
                     break;
 

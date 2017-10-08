@@ -1,4 +1,4 @@
-package edu.syr.cyberseed.sage.sagebackdoorclient.entities;
+package edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;

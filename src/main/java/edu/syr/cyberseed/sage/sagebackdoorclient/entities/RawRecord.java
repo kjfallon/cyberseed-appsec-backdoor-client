@@ -1,37 +1,48 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package edu.syr.cyberseed.sage.sagebackdoorclient.entities;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ *
+ * @author DhruvVerma
+ */
+@Entity
+@Table(name = "record_raw")
 @Data
-@XStreamAlias("RawRecord")
 public class RawRecord {
 
-    @XStreamAlias("RecordID")
-    private String recordId;
-
-    @XStreamAlias("RecordType")
-    private String recordType;
-
-    @XStreamAlias("RecordDate")
-    private String recordDate;
-
-    @XStreamAlias("Owner")
-    private String owner;
-
-    @XStreamAlias("Patient")
-    private String patient;
-
-    @XStreamAlias("EditPermissions")
-    private String editPermissions;
-
-    @XStreamAlias("ViewPermissions")
-    private String viewPermissions;
-
-    @XStreamAlias("Description")
+    @Id
+    @Column(name = "id")
+    private Integer id;
+    
+    @Column(name = "description")
     private String description;
+    
+    @Column(name = "file", nullable = false, columnDefinition = "BINARY(255)", length = 255)
+    private byte[] file;
 
-    @XStreamAlias("File")
-    private String file;
+    @Column(name = "length")
+    private Integer length;
 
+    protected RawRecord() {
+
+    }
+
+    public RawRecord (Integer id, String description, byte[] file, Integer length) {
+        this.id = id;
+        this.description = description;
+        this.file = file;
+        this.length = length;
+
+    }
 }

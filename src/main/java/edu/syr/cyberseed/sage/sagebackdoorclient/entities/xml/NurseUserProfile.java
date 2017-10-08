@@ -1,11 +1,11 @@
-package edu.syr.cyberseed.sage.sagebackdoorclient.entities;
+package edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
 
 @Data
-@XStreamAlias("DoctorUserProfile")
-public class DoctorUserProfile {
+@XStreamAlias("NurseUserProfile")
+public class NurseUserProfile {
 
     @XStreamAlias("Username")
     private String username;
@@ -28,7 +28,7 @@ public class DoctorUserProfile {
     @XStreamAlias("PracticeAddress")
     private String practiceAddress;
 
-    @XStreamAlias("RecoveryPhrase")
-    private String recoveryPhrase;
+    @XStreamAlias("AssociatedDoctors")
+    private String associatedDoctors;
 
 }

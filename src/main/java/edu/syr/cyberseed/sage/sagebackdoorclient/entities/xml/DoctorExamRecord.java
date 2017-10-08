@@ -1,11 +1,11 @@
-package edu.syr.cyberseed.sage.sagebackdoorclient.entities;
+package edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
 
 @Data
-@XStreamAlias("TestResultsRecord")
-public class TestResultsRecord {
+@XStreamAlias("DoctorExamRecord")
+public class DoctorExamRecord {
 
     @XStreamAlias("RecordID")
     private String recordId;
@@ -33,9 +33,6 @@ public class TestResultsRecord {
 
     @XStreamAlias("Doctor")
     private String doctor;
-
-    @XStreamAlias("Lab")
-    private String lab;
 
     @XStreamAlias("Notes")
     private String notes;
