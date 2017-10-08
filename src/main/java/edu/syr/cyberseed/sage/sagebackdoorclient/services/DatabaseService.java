@@ -1,5 +1,8 @@
 package edu.syr.cyberseed.sage.sagebackdoorclient.services;
 
+import com.thoughtworks.xstream.XStream;
+import edu.syr.cyberseed.sage.sagebackdoorclient.entities.DBFile;
+import edu.syr.cyberseed.sage.sagebackdoorclient.entities.SystemAdministratorUserProfile;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.User;
 import edu.syr.cyberseed.sage.sagebackdoorclient.repositories.UserRepository;
 import flexjson.JSONSerializer;
@@ -8,13 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 @Service
 public class DatabaseService {
@@ -31,6 +37,9 @@ public class DatabaseService {
     UserRepository userRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public String parseCommandline(String... args) {
 
@@ -72,9 +81,53 @@ public class DatabaseService {
                     }
 
                     break;
+
                 case "loadData":
                     System.out.println("loadData");
+
+                    // Read the file
+                    //String filenameAndPath = args[1];
+                    String filenameAndPath = "/tmp/file.xml";
+
+                    if (resourceLoader == null)  {
+                        System.out.println("resource loader is null");
+                    }
+                    else {
+                        System.out.println("resource loader is not null");
+                    }
+                    Resource xmlFileResource = resourceLoader.getResource("file:" + filenameAndPath);
+                    InputStream inputStream = null;
+                    try {
+                        inputStream = xmlFileResource.getInputStream();
+                    } catch (IOException e) {
+                        logger.error("Unable to load specified file: " + filenameAndPath);
+                        System.out.println("Unable to load specified file: " + filenameAndPath);
+                        e.printStackTrace();
+                        return "";
+                    }
+
+                    // Parse the file
+                    XStream xstream = new XStream();
+                    xstream.processAnnotations(DBFile.class);
+                    xstream.processAnnotations(SystemAdministratorUserProfile.class);
+                    DBFile dbFile = null;
+                    try {
+                        dbFile = (DBFile) xstream.fromXML(inputStream);
+                    }
+                    catch (Exception e) {
+                        logger.error("Unable to parse xml file.");
+                        System.out.println("Unable to parse xml file.");
+                        e.printStackTrace();
+                        return "";
+                    }
+
+                    // Extract lists of objects to store
+                    List<SystemAdministratorUserProfile> sysAdminUserProfiles = dbFile.getSysAdminUserProfiles();
+
+                    System.out.println("Number of admins = " + sysAdminUserProfiles.size());
+
                     break;
+
                 case "getBackupCfg":
                     System.out.println("getBackupCfg");
                     break;
