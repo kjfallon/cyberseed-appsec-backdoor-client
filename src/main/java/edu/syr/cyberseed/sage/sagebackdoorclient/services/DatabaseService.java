@@ -82,12 +82,12 @@ public class DatabaseService {
                     break;
 
                 case "loadData":
+
                     System.out.println("Performing loadData function.");
+                    System.out.println("XML file path: " + args[1]);
 
                     // Read the file
-                    //String filenameAndPath = args[1];
-                    String filenameAndPath = "/tmp/file.xml";
-
+                    String filenameAndPath = args[1];
                     // Create inputstream from spring Resource
                     Resource xmlFileResource = resourceLoader.getResource("file:" + filenameAndPath);
                     InputStream inputStream = null;
@@ -96,6 +96,7 @@ public class DatabaseService {
                     } catch (IOException e) {
                         logger.error("Unable to load specified file: " + filenameAndPath);
                         System.out.println("Unable to load specified file: " + filenameAndPath);
+                        System.out.println("Specifying the full path the file is required");
                         e.printStackTrace();
                         return "";
                     }
