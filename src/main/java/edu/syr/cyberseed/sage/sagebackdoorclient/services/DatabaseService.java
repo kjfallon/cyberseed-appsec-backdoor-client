@@ -82,7 +82,7 @@ public class DatabaseService {
                     break;
 
                 case "loadData":
-                    System.out.println("loadData");
+                    System.out.println("Performing loadData function.");
 
                     // Read the file
                     //String filenameAndPath = args[1];
@@ -102,6 +102,10 @@ public class DatabaseService {
 
                     // Parse the file via inputstream
                     XStream xstream = new XStream();
+                    XStream.setupDefaultSecurity(xstream); // to be removed after 1.5
+                    xstream.allowTypesByWildcard(new String[] {
+                            "edu.syr.cyberseed.sage.sagebackdoorclient.entities.**"
+                    });
                     xstream.processAnnotations(DBFile.class);
                     xstream.processAnnotations(SystemAdministratorUserProfile.class);
                     xstream.processAnnotations(DoctorUserProfile.class);
@@ -113,6 +117,9 @@ public class DatabaseService {
                     xstream.processAnnotations(DiagnosisRecord.class);
                     xstream.processAnnotations(TestResultsRecord.class);
                     xstream.processAnnotations(InsuranceClaimRecord.class);
+                    xstream.processAnnotations(PatientDoctorCorrespondenceRecord.class);
+                    xstream.processAnnotations(Notes.class);
+                    xstream.processAnnotations(Note.class);
                     xstream.processAnnotations(RawRecord.class);
                     DBFile dbFile = null;
                     try {
@@ -126,12 +133,24 @@ public class DatabaseService {
                     }
 
                     // Extract lists of user objects to store
-                    List<SystemAdministratorUserProfile> sysAdminUserProfiles = dbFile.getSysAdminUserProfiles();
-                    List<DoctorUserProfile> doctorUserProfiles = dbFile.getDoctorUserProfiles();
-                    List<NurseUserProfile> nurseUserProfiles = dbFile.getNurseUserProfiles();
-                    List<MedicalAdministratorUserProfile> medAdminUserProfiles = dbFile.getMedAdminUserProfiles();
-                    List<InsuranceAdministratorUserProfile> insAdminUserProfiles = dbFile.getInsAdminUserProfiles();
-                    List<PatientUserProfile> patientUserProfiles = dbFile.getPatientUserProfiles();
+                    List<SystemAdministratorUserProfile> sysAdminUserProfiles = new ArrayList<SystemAdministratorUserProfile>();
+                    List<DoctorUserProfile> doctorUserProfiles = new ArrayList<DoctorUserProfile>();
+                    List<NurseUserProfile> nurseUserProfiles = new ArrayList<NurseUserProfile>();
+                    List<MedicalAdministratorUserProfile> medAdminUserProfiles = new ArrayList<MedicalAdministratorUserProfile>();
+                    List<InsuranceAdministratorUserProfile> insAdminUserProfiles = new ArrayList<InsuranceAdministratorUserProfile>();
+                    List<PatientUserProfile> patientUserProfiles = new ArrayList<PatientUserProfile>();
+                    if (dbFile.getSysAdminUserProfiles() != null )
+                        sysAdminUserProfiles = dbFile.getSysAdminUserProfiles();
+                    if (dbFile.getDoctorUserProfiles() != null )
+                        doctorUserProfiles = dbFile.getDoctorUserProfiles();
+                    if (dbFile.getNurseUserProfiles() != null )
+                        nurseUserProfiles = dbFile.getNurseUserProfiles();
+                    if (dbFile.getMedAdminUserProfiles() != null )
+                        medAdminUserProfiles = dbFile.getMedAdminUserProfiles();
+                    if (dbFile.getInsAdminUserProfiles() != null )
+                        insAdminUserProfiles = dbFile.getInsAdminUserProfiles();
+                    if (dbFile.getPatientUserProfiles() != null )
+                        patientUserProfiles = dbFile.getPatientUserProfiles();
                     System.out.println("Importing " + sysAdminUserProfiles.size() + " System Administrators");
                     System.out.println("Importing " + doctorUserProfiles.size() + " Doctors");
                     System.out.println("Importing " + nurseUserProfiles.size() + " Nurses");
@@ -140,15 +159,30 @@ public class DatabaseService {
                     System.out.println("Importing " + patientUserProfiles.size() + " Patients");
 
                     // Extract lists of record objects to store
-                   List<DoctorExamRecord> doctorExamRecords = dbFile.getDoctorExamRecords();
-                   List<DiagnosisRecord> diagnosisRecords = dbFile.getDiagnosisRecords();
-                   List<TestResultsRecord> testResultsRecords = dbFile.getTestResultsRecords();
-                   List<InsuranceClaimRecord> insuranceClaimRecords = dbFile.getInsuranceClaimRecords();
-                   List<RawRecord> rawRecords = dbFile.getRawRecords();
+                    List<DoctorExamRecord> doctorExamRecords = new ArrayList<DoctorExamRecord>();
+                    List<DiagnosisRecord> diagnosisRecords = new ArrayList<DiagnosisRecord>();
+                    List<TestResultsRecord> testResultsRecords = new ArrayList<TestResultsRecord>();
+                    List<InsuranceClaimRecord> insuranceClaimRecords = new ArrayList<InsuranceClaimRecord>();
+                    List<PatientDoctorCorrespondenceRecord> patientDoctorCorrespondenceRecords = new ArrayList<PatientDoctorCorrespondenceRecord>();
+                    List<RawRecord> rawRecords = new ArrayList<RawRecord>();
+
+                    if (dbFile.getDoctorExamRecords() != null )
+                        doctorExamRecords = dbFile.getDoctorExamRecords();
+                    if (dbFile.getDiagnosisRecords() != null )
+                        diagnosisRecords = dbFile.getDiagnosisRecords();
+                    if (dbFile.getTestResultsRecords() != null )
+                        testResultsRecords = dbFile.getTestResultsRecords();
+                    if (dbFile.getInsuranceClaimRecords() != null )
+                        insuranceClaimRecords = dbFile.getInsuranceClaimRecords();
+                    if (dbFile.getPatientDoctorCorrespondenceRecords() != null )
+                        patientDoctorCorrespondenceRecords = dbFile.getPatientDoctorCorrespondenceRecords();
+                    if (dbFile.getRawRecords() != null )
+                        rawRecords = dbFile.getRawRecords();
                     System.out.println("Importing " + doctorExamRecords.size() + " Doctor Exam Records");
                     System.out.println("Importing " + diagnosisRecords.size() + " Diagnosis Records");
                     System.out.println("Importing " + testResultsRecords.size() + " Test Result Records");
                     System.out.println("Importing " + insuranceClaimRecords.size() + " Insurance Claim Records");
+                    System.out.println("Importing " + patientDoctorCorrespondenceRecords.size() + " Patient Doctor Correspondence Records");
                     System.out.println("Importing " + rawRecords.size() + " Raw Records");
 
                     break;

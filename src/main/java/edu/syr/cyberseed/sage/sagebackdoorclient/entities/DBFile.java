@@ -41,6 +41,9 @@ public class DBFile {
     @XStreamImplicit(itemFieldName = "InsuranceClaimRecord")
     private List insuranceClaimRecords = new ArrayList();
 
+    @XStreamImplicit(itemFieldName = "PatientDoctorCorrespondenceRecord")
+    private List patientDoctorCorrespondenceRecords = new ArrayList();
+
     @XStreamImplicit(itemFieldName = "RawRecord")
     private List rawRecords = new ArrayList();
 
