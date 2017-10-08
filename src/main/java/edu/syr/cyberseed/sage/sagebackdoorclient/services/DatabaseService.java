@@ -3,7 +3,7 @@ package edu.syr.cyberseed.sage.sagebackdoorclient.services;
 import com.thoughtworks.xstream.XStream;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.*;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.*;
-import edu.syr.cyberseed.sage.sagebackdoorclient.repositories.UserRepository;
+import edu.syr.cyberseed.sage.sagebackdoorclient.repositories.*;
 import flexjson.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -31,7 +34,21 @@ public class DatabaseService {
     private String adminPassword;
 
     @Autowired
+    MedicalRecordRepository medicalRecordRepository;
+    @Autowired
     UserRepository userRepository;
+    @Autowired
+    PatientRepository patientRepository;
+    @Autowired
+    DoctorRepository doctorRepository;
+    @Autowired
+    NurseRepository nurseRepository;
+    @Autowired
+    MedicalAdminRepository medicalAdminRepository;
+    @Autowired
+    InsuranceAdminRepository insAdminRepository;
+    @Autowired
+    PermissionsRepository permissionListRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -102,7 +119,7 @@ public class DatabaseService {
                     // Parse the file via inputstream
                     XStream xstream = new XStream();
                     XStream.setupDefaultSecurity(xstream); // to be removed after 1.5
-                    xstream.allowTypesByWildcard(new String[] {
+                    xstream.allowTypesByWildcard(new String[]{
                             "edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.**"
                     });
                     xstream.processAnnotations(edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DBFile.class);
@@ -123,8 +140,7 @@ public class DatabaseService {
                     DBFile dbFile = null;
                     try {
                         dbFile = (DBFile) xstream.fromXML(inputStream);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         logger.error("Unable to parse xml file.");
                         System.out.println("Unable to parse xml file.");
                         e.printStackTrace();
@@ -138,17 +154,17 @@ public class DatabaseService {
                     List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.MedicalAdministratorUserProfile> medAdminUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.MedicalAdministratorUserProfile>();
                     List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceAdministratorUserProfile> insAdminUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.InsuranceAdministratorUserProfile>();
                     List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientUserProfile> patientUserProfiles = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientUserProfile>();
-                    if (dbFile.getSysAdminUserProfiles() != null )
+                    if (dbFile.getSysAdminUserProfiles() != null)
                         sysAdminUserProfiles = dbFile.getSysAdminUserProfiles();
-                    if (dbFile.getDoctorUserProfiles() != null )
+                    if (dbFile.getDoctorUserProfiles() != null)
                         doctorUserProfiles = dbFile.getDoctorUserProfiles();
-                    if (dbFile.getNurseUserProfiles() != null )
+                    if (dbFile.getNurseUserProfiles() != null)
                         nurseUserProfiles = dbFile.getNurseUserProfiles();
-                    if (dbFile.getMedAdminUserProfiles() != null )
+                    if (dbFile.getMedAdminUserProfiles() != null)
                         medAdminUserProfiles = dbFile.getMedAdminUserProfiles();
-                    if (dbFile.getInsAdminUserProfiles() != null )
+                    if (dbFile.getInsAdminUserProfiles() != null)
                         insAdminUserProfiles = dbFile.getInsAdminUserProfiles();
-                    if (dbFile.getPatientUserProfiles() != null )
+                    if (dbFile.getPatientUserProfiles() != null)
                         patientUserProfiles = dbFile.getPatientUserProfiles();
                     System.out.println("Importing " + sysAdminUserProfiles.size() + " System Administrators");
                     System.out.println("Importing " + doctorUserProfiles.size() + " Doctors");
@@ -165,17 +181,17 @@ public class DatabaseService {
                     List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientDoctorCorrespondenceRecord> patientDoctorCorrespondenceRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientDoctorCorrespondenceRecord>();
                     List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.RawRecord> rawRecords = new ArrayList<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.RawRecord>();
 
-                    if (dbFile.getDoctorExamRecords() != null )
+                    if (dbFile.getDoctorExamRecords() != null)
                         doctorExamRecords = dbFile.getDoctorExamRecords();
-                    if (dbFile.getDiagnosisRecords() != null )
+                    if (dbFile.getDiagnosisRecords() != null)
                         diagnosisRecords = dbFile.getDiagnosisRecords();
-                    if (dbFile.getTestResultsRecords() != null )
+                    if (dbFile.getTestResultsRecords() != null)
                         testResultsRecords = dbFile.getTestResultsRecords();
-                    if (dbFile.getInsuranceClaimRecords() != null )
+                    if (dbFile.getInsuranceClaimRecords() != null)
                         insuranceClaimRecords = dbFile.getInsuranceClaimRecords();
-                    if (dbFile.getPatientDoctorCorrespondenceRecords() != null )
+                    if (dbFile.getPatientDoctorCorrespondenceRecords() != null)
                         patientDoctorCorrespondenceRecords = dbFile.getPatientDoctorCorrespondenceRecords();
-                    if (dbFile.getRawRecords() != null )
+                    if (dbFile.getRawRecords() != null)
                         rawRecords = dbFile.getRawRecords();
                     System.out.println("Importing " + doctorExamRecords.size() + " Doctor Exam Records");
                     System.out.println("Importing " + diagnosisRecords.size() + " Diagnosis Records");
@@ -184,7 +200,380 @@ public class DatabaseService {
                     System.out.println("Importing " + patientDoctorCorrespondenceRecords.size() + " Patient Doctor Correspondence Records");
                     System.out.println("Importing " + rawRecords.size() + " Raw Records");
 
-                    // write Users to database
+                    //
+                    //
+                    // write Sys Admins to database
+                    //
+                    //
+
+                    for (SystemAdministratorUserProfile user : sysAdminUserProfiles) {
+
+                        // no password specified so setting to random type 4 uuid.
+                        String password = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+
+                        ArrayList<String> applicationRoleList = parseXmlRoles(user.getRoles());
+
+                        //Create a json list of roles for a user of this type
+                        String roles;
+                        ArrayList<String> roleList = new ArrayList<String>();
+                        // roles for this user type
+                        roleList.add("ROLE_USER");
+                        roleList.add("ROLE_SYSTEM_ADMIN");
+                        // extra roles from xml
+                        for (String role : applicationRoleList) {
+                            if (StringUtils.isNotEmpty(role)) {
+                                roleList.add(role);
+                            }
+                        }
+                        Map<String, Object> rolesJson = new HashMap<String, Object>();
+                        rolesJson.put("roles", roleList);
+                        JSONSerializer serializer = new JSONSerializer();
+                        roles = serializer.include("roles").serialize(rolesJson);
+
+                        //parse and permissions to add
+                        List<String> userSuppliedIncludeList = parseXmlPermissions(user.getPermissions());
+                        ArrayList<String> includeList = new ArrayList<String>();
+                        for (String perm : userSuppliedIncludeList) {
+                            Permissions permsObject = permissionListRepository.findByPermission(perm);
+                            if ((permsObject != null) && (StringUtils.isNotEmpty(permsObject.getPermission()))) {
+                                //logger.info("Permission " + permsObject.getPermission() + " was requested to be added to " + user.getUsername());
+                                includeList.add(permsObject.getPermission());
+                            }
+                        }
+                        String includeRolesJson = null;
+                        if (includeList.size() > 0) {
+                            Map<String, Object> irolesJson = new HashMap<String, Object>();
+                            irolesJson.put("roles", includeList);
+                            JSONSerializer permserializer = new JSONSerializer();
+                            includeRolesJson = permserializer.include("roles").serialize(irolesJson);
+                        }
+                        userRepository.save(Arrays.asList(new User(user.getUsername(),
+                                password,
+                                user.getFirstName(),
+                                user.getLastName(),
+                                roles,
+                                includeRolesJson,
+                                null)));
+                        System.out.println("Added System Admin: " + user.getUsername());
+                    }
+
+                    //
+                    //
+                    // write Doctors to database
+                    //
+                    //
+
+                    for (DoctorUserProfile user : doctorUserProfiles) {
+
+                        // no password specified so setting to random type 4 uuid.
+                        String password = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+
+                        ArrayList<String> applicationRoleList = parseXmlRoles(user.getRoles());
+
+                        //Create a json list of roles for a user of this type
+                        String roles;
+                        ArrayList<String> roleList = new ArrayList<String>();
+                        // roles for this user type
+                        roleList.add("ROLE_USER");
+                        roleList.add("ROLE_DOCTOR");
+                        // extra roles from xml
+                        for (String role : applicationRoleList) {
+                            if (StringUtils.isNotEmpty(role)) {
+                                roleList.add(role);
+                            }
+                        }
+                        Map<String, Object> rolesJson = new HashMap<String, Object>();
+                        rolesJson.put("roles", roleList);
+                        JSONSerializer serializer = new JSONSerializer();
+                        roles = serializer.include("roles").serialize(rolesJson);
+
+                        //parse and permissions to add
+                        List<String> userSuppliedIncludeList = parseXmlPermissions(user.getPermissions());
+                        ArrayList<String> includeList = new ArrayList<String>();
+                        for (String perm : userSuppliedIncludeList) {
+                            Permissions permsObject = permissionListRepository.findByPermission(perm);
+                            if ((permsObject != null) && (StringUtils.isNotEmpty(permsObject.getPermission()))) {
+                                logger.info("Permission " + permsObject.getPermission() + " was requested to be added to " + user.getUsername());
+                                includeList.add(permsObject.getPermission());
+                            }
+                        }
+                        String includeRolesJson = null;
+                        if (includeList.size() > 0) {
+                            Map<String, Object> irolesJson = new HashMap<String, Object>();
+                            irolesJson.put("roles", includeList);
+                            JSONSerializer permserializer = new JSONSerializer();
+                            includeRolesJson = permserializer.include("roles").serialize(irolesJson);
+                        }
+                        userRepository.save(Arrays.asList(new User(user.getUsername(),
+                                password,
+                                user.getFirstName(),
+                                user.getLastName(),
+                                roles,
+                                includeRolesJson,
+                                null)));
+                        // create the Doctor record
+                        doctorRepository.save(new Doctor(user.getUsername(), user.getPracticeName()
+                                , user.getPracticeAddress(), user.getRecoveryPhrase()));
+
+                        System.out.println("Added Doctor: " + user.getUsername());
+                    }
+
+                    //
+                    //
+                    // write Nurses to database
+                    //
+                    //
+
+                    for (NurseUserProfile user : nurseUserProfiles) {
+
+                        // no password specified so setting to random type 4 uuid.
+                        String password = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+
+                        ArrayList<String> applicationRoleList = parseXmlRoles(user.getRoles());
+
+                        //Create a json list of roles for a user of this type
+                        String roles;
+                        ArrayList<String> roleList = new ArrayList<String>();
+                        // roles for this user type
+                        roleList.add("ROLE_USER");
+                        roleList.add("ROLE_NURSE");
+                        // extra roles from xml
+                        for (String role : applicationRoleList) {
+                            if (StringUtils.isNotEmpty(role)) {
+                                roleList.add(role);
+                            }
+                        }
+                        Map<String, Object> rolesJson = new HashMap<String, Object>();
+                        rolesJson.put("roles", roleList);
+                        JSONSerializer serializer = new JSONSerializer();
+                        roles = serializer.include("roles").serialize(rolesJson);
+
+                        //parse and permissions to add
+                        List<String> userSuppliedIncludeList = parseXmlPermissions(user.getPermissions());
+                        ArrayList<String> includeList = new ArrayList<String>();
+                        for (String perm : userSuppliedIncludeList) {
+                            Permissions permsObject = permissionListRepository.findByPermission(perm);
+                            if ((permsObject != null) && (StringUtils.isNotEmpty(permsObject.getPermission()))) {
+                                logger.info("Permission " + permsObject.getPermission() + " was requested to be added to " + user.getUsername());
+                                includeList.add(permsObject.getPermission());
+                            }
+                        }
+                        String includeRolesJson = null;
+                        if (includeList.size() > 0) {
+                            Map<String, Object> irolesJson = new HashMap<String, Object>();
+                            irolesJson.put("roles", includeList);
+                            JSONSerializer permserializer = new JSONSerializer();
+                            includeRolesJson = permserializer.include("roles").serialize(irolesJson);
+                        }
+                        userRepository.save(Arrays.asList(new User(user.getUsername(),
+                                password,
+                                user.getFirstName(),
+                                user.getLastName(),
+                                roles,
+                                includeRolesJson,
+                                null)));
+                        // create the Nurse record
+                        nurseRepository.save(new Nurse(user.getUsername(), user.getPracticeName()
+                                , user.getPracticeAddress(), user.getAssociatedDoctors()));
+
+                        System.out.println("Added Nurse: " + user.getUsername());
+                    }
+
+                    //
+                    //
+                    // write Med Admin to database
+                    //
+                    //
+
+                    for (MedicalAdministratorUserProfile user : medAdminUserProfiles) {
+
+                        // no password specified so setting to random type 4 uuid.
+                        String password = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+
+                        ArrayList<String> applicationRoleList = parseXmlRoles(user.getRoles());
+
+                        //Create a json list of roles for a user of this type
+                        String roles;
+                        ArrayList<String> roleList = new ArrayList<String>();
+                        // roles for this user type
+                        roleList.add("ROLE_USER");
+                        roleList.add("ROLE_MEDICAL_ADMIN");
+                        // extra roles from xml
+                        for (String role : applicationRoleList) {
+                            if (StringUtils.isNotEmpty(role)) {
+                                roleList.add(role);
+                            }
+                        }
+                        Map<String, Object> rolesJson = new HashMap<String, Object>();
+                        rolesJson.put("roles", roleList);
+                        JSONSerializer serializer = new JSONSerializer();
+                        roles = serializer.include("roles").serialize(rolesJson);
+
+                        //parse and permissions to add
+                        List<String> userSuppliedIncludeList = parseXmlPermissions(user.getPermissions());
+                        ArrayList<String> includeList = new ArrayList<String>();
+                        for (String perm : userSuppliedIncludeList) {
+                            Permissions permsObject = permissionListRepository.findByPermission(perm);
+                            if ((permsObject != null) && (StringUtils.isNotEmpty(permsObject.getPermission()))) {
+                                logger.info("Permission " + permsObject.getPermission() + " was requested to be added to " + user.getUsername());
+                                includeList.add(permsObject.getPermission());
+                            }
+                        }
+                        String includeRolesJson = null;
+                        if (includeList.size() > 0) {
+                            Map<String, Object> irolesJson = new HashMap<String, Object>();
+                            irolesJson.put("roles", includeList);
+                            JSONSerializer permserializer = new JSONSerializer();
+                            includeRolesJson = permserializer.include("roles").serialize(irolesJson);
+                        }
+                        userRepository.save(Arrays.asList(new User(user.getUsername(),
+                                password,
+                                user.getFirstName(),
+                                user.getLastName(),
+                                roles,
+                                includeRolesJson,
+                                null)));
+                        // create the Med Admin record
+                        medicalAdminRepository.save(Arrays.asList(new Medical_admin(user.getUsername(),
+                                user.getPracticeName(), user.getPracticeAddress(), user.getAssociatedDoctors(),
+                                user.getAssociatedNurses())));
+
+
+                        System.out.println("Added Medical Admin: " + user.getUsername());
+                    }
+
+                    //
+                    //
+                    // write Insurance Admin to database
+                    //
+                    //
+
+                    for (InsuranceAdministratorUserProfile user : insAdminUserProfiles) {
+
+                        // no password specified so setting to random type 4 uuid.
+                        String password = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+
+                        ArrayList<String> applicationRoleList = parseXmlRoles(user.getRoles());
+
+                        //Create a json list of roles for a user of this type
+                        String roles;
+                        ArrayList<String> roleList = new ArrayList<String>();
+                        // roles for this user type
+                        roleList.add("ROLE_USER");
+                        roleList.add("ROLE_INSURANCE_ADMIN");
+                        // extra roles from xml
+                        for (String role : applicationRoleList) {
+                            if (StringUtils.isNotEmpty(role)) {
+                                roleList.add(role);
+                            }
+                        }
+                        Map<String, Object> rolesJson = new HashMap<String, Object>();
+                        rolesJson.put("roles", roleList);
+                        JSONSerializer serializer = new JSONSerializer();
+                        roles = serializer.include("roles").serialize(rolesJson);
+
+                        //parse and permissions to add
+                        List<String> userSuppliedIncludeList = parseXmlPermissions(user.getPermissions());
+                        ArrayList<String> includeList = new ArrayList<String>();
+                        for (String perm : userSuppliedIncludeList) {
+                            Permissions permsObject = permissionListRepository.findByPermission(perm);
+                            if ((permsObject != null) && (StringUtils.isNotEmpty(permsObject.getPermission()))) {
+                                logger.info("Permission " + permsObject.getPermission() + " was requested to be added to " + user.getUsername());
+                                includeList.add(permsObject.getPermission());
+                            }
+                        }
+                        String includeRolesJson = null;
+                        if (includeList.size() > 0) {
+                            Map<String, Object> irolesJson = new HashMap<String, Object>();
+                            irolesJson.put("roles", includeList);
+                            JSONSerializer permserializer = new JSONSerializer();
+                            includeRolesJson = permserializer.include("roles").serialize(irolesJson);
+                        }
+                        userRepository.save(Arrays.asList(new User(user.getUsername(),
+                                password,
+                                user.getFirstName(),
+                                user.getLastName(),
+                                roles,
+                                includeRolesJson,
+                                null)));
+                        // create the Ins Admin record
+                        insAdminRepository.save(Arrays.asList(new Insurance_admin(user.getUsername(),
+                                user.getCompanyName(), user.getCompanyAddress())));
+
+
+                        System.out.println("Added Insurance Admin: " + user.getUsername());
+                    }
+
+                    //
+                    //
+                    // write Patient to database
+                    //
+                    //
+
+                    for (PatientUserProfile user : patientUserProfiles) {
+
+                        // no password specified so setting to random type 4 uuid.
+                        String password = bCryptPasswordEncoder.encode(UUID.randomUUID().toString());
+
+                        ArrayList<String> applicationRoleList = parseXmlRoles(user.getRoles());
+
+                        //Create a json list of roles for a user of this type
+                        String roles;
+                        ArrayList<String> roleList = new ArrayList<String>();
+                        // roles for this user type
+                        roleList.add("ROLE_USER");
+                        roleList.add("ROLE_PATIENT");
+                        // extra roles from xml
+                        for (String role : applicationRoleList) {
+                            if (StringUtils.isNotEmpty(role)) {
+                                roleList.add(role);
+                            }
+                        }
+                        Map<String, Object> rolesJson = new HashMap<String, Object>();
+                        rolesJson.put("roles", roleList);
+                        JSONSerializer serializer = new JSONSerializer();
+                        roles = serializer.include("roles").serialize(rolesJson);
+
+                        //parse and permissions to add
+                        List<String> userSuppliedIncludeList = parseXmlPermissions(user.getPermissions());
+                        ArrayList<String> includeList = new ArrayList<String>();
+                        for (String perm : userSuppliedIncludeList) {
+                            Permissions permsObject = permissionListRepository.findByPermission(perm);
+                            if ((permsObject != null) && (StringUtils.isNotEmpty(permsObject.getPermission()))) {
+                                logger.info("Permission " + permsObject.getPermission() + " was requested to be added to " + user.getUsername());
+                                includeList.add(permsObject.getPermission());
+                            }
+                        }
+                        String includeRolesJson = null;
+                        if (includeList.size() > 0) {
+                            Map<String, Object> irolesJson = new HashMap<String, Object>();
+                            irolesJson.put("roles", includeList);
+                            JSONSerializer permserializer = new JSONSerializer();
+                            includeRolesJson = permserializer.include("roles").serialize(irolesJson);
+                        }
+                        userRepository.save(Arrays.asList(new User(user.getUsername(),
+                                password,
+                                user.getFirstName(),
+                                user.getLastName(),
+                                roles,
+                                includeRolesJson,
+                                null)));
+                        // create the patientrecord
+                        String ssn2 = user.getSsn().replace("-", "");
+                        Integer ssnInt = Integer.valueOf(ssn2);
+                        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                        Date dobDate= new Date();
+                        try {
+                            dobDate = df.parse(user.getDob());
+                        } catch (ParseException e) {
+                            System.out.println("DOB for " + user.getUsername() + " not in MM/DD/YYYY format");
+                        }
+                        patientRepository.save(Arrays.asList(new Patient(user.getUsername(),
+                                dobDate, ssnInt, user.getAddress())));
+
+
+                        System.out.println("Added Patient: " + user.getUsername());
+                    }
 
                     break;
 
@@ -200,11 +589,103 @@ public class DatabaseService {
                 default:
                     System.out.println("Invalid commandline, options are: <setITAdmin|loadData|getBackupCfg|loadBackupCfg|DumpDB");
             }
-        }
-        else {
+        } else {
             System.out.println("No commandline parameters specified.");
         }
 
         return "";
     }
+
+    private ArrayList<String> parseXmlRoles(String roleString) {
+
+        ArrayList<String> appRoleList = new ArrayList<String>();
+        if (StringUtils.isNotEmpty(roleString)) {
+            List<String> items = Arrays.asList(roleString.split("\\s*,\\s*"));
+            for (String role : items) {
+                if (role.contains("doctor") || role.contains("DOCTOR") || role.contains("Doctor")) {
+                    appRoleList.add("ROLE_DOCTOR");
+                }
+                if (role.contains("system") || role.contains("SYSTEM") || role.contains("System")) {
+                    appRoleList.add("ROLE_SYSTEM_ADMIN");
+                }
+                if (role.contains("nurse") || role.contains("NURSE") || role.contains("Nurse")) {
+                    appRoleList.add("ROLE_NURSE");
+                }
+                if (role.contains("medical") || role.contains("MEDICAL") || role.contains("Medical")) {
+                    appRoleList.add("ROLE_MEDICAL_ADMIN");
+                }
+                if (role.contains("insurance") || role.contains("INSURANCE") || role.contains("Insurance")) {
+                    appRoleList.add("ROLE_INSURANCE_ADMIN");
+                }
+                if (role.contains("patient") || role.contains("PATIENT") || role.contains("Patient")) {
+                    appRoleList.add("ROLE_PATIENT");
+                }
+            }
+        }
+        return appRoleList;
+    }
+
+    private ArrayList<String> parseXmlPermissions(String permissionString) {
+
+        ArrayList<String> appRoleList = new ArrayList<String>();
+        if (StringUtils.isNotEmpty(permissionString)) {
+            List<String> items = Arrays.asList(permissionString.split(","));
+            for (String role : items) {
+
+                switch (role.toLowerCase()) {
+                    case "add patient":
+                        appRoleList.add("ROLE_ADD_PATIENT");
+                        break;
+                    case "edit patient":
+                        appRoleList.add("ROLE_EDIT_PATIENT");
+                        break;
+                    case "add doctor":
+                        appRoleList.add("ROLE_ADD_DOCTOR");
+                        break;
+                    case "edit doctor":
+                        appRoleList.add("EDIT_ADD_DOCTOR");
+                        break;
+                    case "add medical administrator":
+                        appRoleList.add("ROLE_ADD_MEDICAL_ADMIN");
+                        break;
+                    case "edit medical administrator":
+                        appRoleList.add("ROLE_EDIT_MEDICAL_ADMIN");
+                        break;
+                    case "add insurance administrator":
+                        appRoleList.add("ROLE_ADD_INSURANCE_ADMIN");
+                        break;
+                    case "edit insurance administrator":
+                        appRoleList.add("ROLE_EDIT_INSURANCE_ADMIN");
+                        break;
+                    case "add nurse":
+                        appRoleList.add("ROLE_ADD_NURSE");
+                        break;
+                    case "edit nurse":
+                        appRoleList.add("ROLE_EDIT_NURSE");
+                        break;
+                    case "add system administrator":
+                        appRoleList.add("ROLE_ADD_SYSTEM_ADMIN");
+                        break;
+                    case "edit system administrator":
+                        appRoleList.add("ROLE_EDIT_SYSTEM_ADMIN");
+                        break;
+                    case "delete user profile":
+                        appRoleList.add("ROLE_DELETE_USER_PROFILE");
+                        break;
+                    case "assign permissions":
+                        appRoleList.add("ROLE_ASSIGN_PERMISSIONS");
+                        break;
+                    case "edit record access":
+                        appRoleList.add("ROLE_EDIT_RECORD_ACCESS");
+                        break;
+                    case "view pii":
+                        appRoleList.add("ROLE_VIEW_PII");
+                        break;
+                }
+            }
+
+        }
+        return appRoleList;
+    }
 }
+
