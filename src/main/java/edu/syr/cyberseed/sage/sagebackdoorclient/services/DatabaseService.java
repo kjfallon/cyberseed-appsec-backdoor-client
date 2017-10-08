@@ -1,5 +1,5 @@
 package edu.syr.cyberseed.sage.sagebackdoorclient.services;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStream;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.*;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.*;
@@ -12,11 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.apache.commons.codec.binary.Base64;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 
 @Service
@@ -39,7 +46,12 @@ public class DatabaseService {
     private ResourceLoader resourceLoader;
 
     public String parseCommandline(String... args) {
-
+        String smirkHost = smirkHost = "http://"
+                + "127.0.0.1"
+                + ":" + "8080";
+        String url="";
+        String smirkService="";
+        String returnedDataFromAPI = "";
         if (args.length > 0) {
             switch (args[0]) {
                 case "setITAdmin":
@@ -189,10 +201,91 @@ public class DatabaseService {
                     break;
 
                 case "getBackupCfg":
-                    System.out.println("getBackupCfg");
+                    smirkService = "/getBackupCfg";
+                    url = smirkHost + smirkService;
+
+                    // Create HTTP headers that specify the auth for this request and the content type
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    String auth = "sysad" + ":" + "1234567891234567";
+                    byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")) );
+                    String authHeader = "Basic " + new String( encodedAuth );
+                    httpHeaders.set("Authorization", authHeader);
+                    httpHeaders.set("Content-Type", "application/json");
+
+                    // create request with http headers
+                    HttpEntity<String> postHeaders = new HttpEntity <String> (httpHeaders);
+
+                    // actually GET the API and get a string array back
+                    BackupCfg medRecord = new BackupCfg();
+                    try {
+                        RestTemplate r1 = new RestTemplate();
+                        ResponseEntity<BackupCfg> httpEntityResponse = r1.exchange(url + "/" + args[1],
+                                HttpMethod.GET,
+                                postHeaders,
+                                BackupCfg.class);
+                        medRecord = httpEntityResponse.getBody();
+
+                    }
+
+                    catch (HttpClientErrorException e)
+                    {
+                        System.out.println(e);
+                    }
+                    catch(Exception e)
+                    {
+                        System.out.println(e);
+                    }
+                    String recordSubType = medRecord.getanswer();
+                    switch (recordSubType) {
+                        case "yes":
+                            System.out.println("offsiteServerIp : " + medRecord.getoffsiteServerIp());
+                            System.out.println("offsiteServerUsername: " + medRecord.getoffsiteServerUsername());
+                            System.out.println("offsiteServerPassword : " + medRecord.getOffsiteServerPassword());
+                            break;
+
+                        case "no":
+                            System.out.println("No cfg loaded");
+                            break;
+
+                        default:
+                            System.out.println("default switch ");
+                    }
+
                     break;
                 case "loadBackupCfg":
                     System.out.println("loadBackupCfg");
+                    smirkService = "/loadBackupCfg";
+                    url = smirkHost + smirkService;
+                    // Create HTTP headers that specify the auth for this request and the content type
+                    HttpHeaders httpHeaders1 = new HttpHeaders();
+                    String auth1 = "sysad" + ":" + "1234567891234567";
+                    byte[] encodedAuth1 = Base64.encodeBase64(auth1.getBytes(Charset.forName("US-ASCII")));
+                    String authHeader1 = "Basic " + new String(encodedAuth1);
+                    httpHeaders1.set("Authorization", authHeader1);
+                    httpHeaders1.set("Content-Type", "application/json");
+
+                    // Define the data we are submitting to the API
+                    ObjectMapper mapper = new ObjectMapper();
+                    com.fasterxml.jackson.databind.node.ObjectNode objectNode = mapper.createObjectNode();
+                    objectNode.put("offsiteServerIp", "123.123.123.123");
+                    objectNode.put("offsiteServerUsername", "thisisnottheusername");
+                    objectNode.put("offsiteServerPassword", "thisisnotthepassword");
+                    objectNode.put("offsiteServerFilename", args[1]);
+                    String postData = objectNode.toString();
+
+                    // create full request with data and http headers
+                    HttpEntity<String> postDataWithHeaders = new HttpEntity <String> (postData, httpHeaders1);
+                    System.out.println(postDataWithHeaders);
+                    try {
+                        System.out.println("loadBackupCfg");
+                        RestTemplate r = new RestTemplate();
+                        r.postForObject(url, postDataWithHeaders, String.class);
+
+                    }
+                    catch(Exception e)
+                    {
+                        System.out.println(e);
+                    }
                     break;
                 case "DumpDB":
                     System.out.println("DumpDB");
