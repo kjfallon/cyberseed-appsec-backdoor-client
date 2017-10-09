@@ -1306,12 +1306,10 @@ public class DatabaseService {
                             break;
 
                         default:
-                            System.out.println("default switch ");
                     }
 
                     break;
                 case "loadBackupCfg":
-                    System.out.println("loadBackupCfg");
                     smirkService = "/loadBackupCfg";
                     url = smirkUrl+smirkService;
                     // Create HTTP headers that specify the auth for this request and the content type
@@ -1333,24 +1331,19 @@ public class DatabaseService {
 
                     // create full request with data and http headers
                     HttpEntity<String> postDataWithHeaders = new HttpEntity <String> (postData, httpHeaders1);
-                    System.out.println(postDataWithHeaders);
                     try {
-                        System.out.println("loadBackupCfg");
                         RestTemplate r = new RestTemplate();
                         r.postForObject(url, postDataWithHeaders, String.class);
 
                     }
                     catch(Exception e)
                     {
-                        System.out.println(e);
                     }
                     break;
                 case "DumpDB":
-                    System.out.println("DumpDB");
                     String dump="";
                     smirkService = "/dumpDb";
                     url = smirkUrl+smirkService;
-                    System.out.println(url);
 
                     // Create HTTP headers that specify the auth for this request and the content type
                     HttpHeaders httpHeaders2 = new HttpHeaders();
@@ -1364,7 +1357,6 @@ public class DatabaseService {
                     HttpEntity<String> postHeaders2 = new HttpEntity <String> (httpHeaders2);
 
                     // actually GET the API and get a string array back
-                    System.out.println("before try");
                     try {
                         RestTemplate r1 = new RestTemplate();
                         ResponseEntity<String> httpEntityResponse = r1.exchange(url,
@@ -1372,7 +1364,6 @@ public class DatabaseService {
                                 postHeaders2,
                                 String.class);
                         dump = httpEntityResponse.getBody();
-                        System.out.println("recieved dump");
 
                     }
 
@@ -1386,7 +1377,6 @@ public class DatabaseService {
                     }
                     PrintWriter writer = new PrintWriter("smirkDBDump.xml", "UTF-8");
                     writer.println(dump);
-                    System.out.println(dump);
                     writer.close();
                     break;
                 default:
