@@ -1142,6 +1142,122 @@ public class DatabaseService {
 
                     }
 
+                    //
+                    //
+                    // write PatientDoctorCorrespondenceRecord to database
+                    //
+                    //
+
+                    for (edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.PatientDoctorCorrespondenceRecord record : patientDoctorCorrespondenceRecords) {
+                        // change id from string to Integer
+                        Integer id = Integer.valueOf(record.getRecordId());
+
+                        // change dates from string to date
+                        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                        Date recordDate= new Date();
+                        try {
+                            recordDate = df.parse(record.getRecordDate());
+                        } catch (ParseException e) {
+                            System.out.println("RecordDate for " + id + " not in MM/DD/YYYY format");
+                        }
+
+                        //Check if API user specified supplemental users for edit or view permission
+                        List<String> xmlEditList = Arrays.asList(record.getEditPermissions().split(","));
+                        List<String> xmlViewList = Arrays.asList(record.getViewPermissions().split(","));
+                        Boolean editUsersSubmitted = ((xmlEditList != null) && (xmlEditList.size() > 0)) ? true : false;
+                        Boolean viewUsersSubmitted = ((xmlViewList != null) && (xmlViewList.size() > 0)) ? true : false;
+
+                        // create a json object of the default edit users
+                        ArrayList<String> editUserList = new ArrayList<String>();
+                        // by default do not add any users
+                        //editUserList.add(currentUser);
+                        Map<String, Object> editUserListJson = new HashMap<String, Object>();
+
+
+                        // create a json object of the default view users
+                        ArrayList<String> viewUserList = new ArrayList<String>();
+                        // by default do not add any users
+                        //viewUserList.add(currentUser);
+                        //viewUserList.add(submittedData.getPatientUsername());
+                        Map<String, Object> viewUserListJson = new HashMap<String, Object>();
+
+
+                        String finalEditPermissions = "";
+                        String finalViewPermissions = "";
+
+                        if (editUsersSubmitted) {
+                            List<String> userSuppliedListOfUsersToGrantEdit = xmlEditList;
+                            for (String username : userSuppliedListOfUsersToGrantEdit) {
+                                User possibleUser = userRepository.findByUsername(username);
+                                if ((possibleUser != null) && (StringUtils.isNotEmpty(possibleUser.getUsername()))) {
+                                    editUserList.add(username);
+                                }
+                            }
+                            editUserListJson.put("users", editUserList);
+                            JSONSerializer serializer = new JSONSerializer();
+                            finalEditPermissions = serializer.include("users").serialize(editUserListJson);
+                        }
+                        else {
+                            editUserListJson.put("users", editUserList);
+                            JSONSerializer serializer = new JSONSerializer();
+                            finalEditPermissions = serializer.include("users").serialize(editUserListJson);
+                        }
+
+                        if (viewUsersSubmitted) {
+                            List<String> userSuppliedListOfUsersToGrantView = xmlViewList;
+                            for (String username : userSuppliedListOfUsersToGrantView) {
+                                User possibleUser = userRepository.findByUsername(username);
+                                if ((possibleUser != null) && (StringUtils.isNotEmpty(possibleUser.getUsername()))) {
+                                    viewUserList.add(username);
+                                }
+                            }
+                            viewUserListJson.put("users", viewUserList);
+                            JSONSerializer serializer = new JSONSerializer();
+                            finalViewPermissions = serializer.include("users").serialize(viewUserListJson);
+                        }
+                        else {
+                            viewUserListJson.put("users", viewUserList);
+                            JSONSerializer serializer = new JSONSerializer();
+                            finalViewPermissions = serializer.include("users").serialize(viewUserListJson);
+                        }
+
+                        //logger.info("Creating records with id " + id);
+                        edu.syr.cyberseed.sage.sagebackdoorclient.entities.MedicalRecordWithoutAutoId savedMedicalRecord =
+                                medicalRecordWithoutAutoIdRepository.save(new edu.syr.cyberseed.sage.sagebackdoorclient.entities.MedicalRecordWithoutAutoId(id,
+                                        "Patient Doctor Correspondence Record",
+                                        recordDate,
+                                        record.getOwner(),
+                                        record.getPatient(),
+                                        finalEditPermissions,
+                                        finalViewPermissions));
+                        //logger.info("Created  MedicalRecord with id " + savedMedicalRecord.getId());
+
+                        // create the CorrespondenceRecord
+                        edu.syr.cyberseed.sage.sagebackdoorclient.entities.CorrespondenceRecord savedCorrespondenceRecord =
+                                correspondenceRecordRepository.save(new edu.syr.cyberseed.sage.sagebackdoorclient.entities.CorrespondenceRecord(id,
+                                        record.getDoctor()));
+
+                        // write any notes
+                        edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.Notes notes = record.getNotes();
+                        List<edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.Note> noteList = notes.getNoteList();
+                        for (edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.Note note : noteList) {
+                            // change date from string to date
+                            DateFormat noteDf = new SimpleDateFormat("MM/dd/yyyy");
+                            Date noteDate = new Date();
+                            try {
+                                noteDate = noteDf.parse(note.getDate());
+                            } catch (ParseException e) {
+                                System.out.println("Note Date for " + id + " not in MM/DD/YYYY format");
+                            }
+                            edu.syr.cyberseed.sage.sagebackdoorclient.entities.CorrespondenceRecord savedNote =
+                                    correspondenceRecordRepository.save(new edu.syr.cyberseed.sage.sagebackdoorclient.entities.CorrespondenceRecord(id,
+                                            noteDate, note.getText()));
+                        }
+
+                        System.out.println("Created CorrespondenceRecord with id " + savedCorrespondenceRecord.getId());
+
+                    }
+
                     break;
 
                 case "getBackupCfg":

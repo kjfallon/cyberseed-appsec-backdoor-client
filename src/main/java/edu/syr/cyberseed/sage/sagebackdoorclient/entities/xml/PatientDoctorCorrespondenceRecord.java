@@ -32,6 +32,6 @@ public class PatientDoctorCorrespondenceRecord {
     private String doctor;
 
     @XStreamAlias("Notes")
-    private String notes;
+    private edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.Notes notes;
 
 }
