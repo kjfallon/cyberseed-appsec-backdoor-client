@@ -40,7 +40,7 @@ public class DatabaseService {
     private String adminUsername;
     @Value("${smirk.backdoor.defaultadmin.password:unknown}")
     private String adminPassword;
-    @Value("${smirk.backdoor.ip:unknown}")
+    @Value("${smirk.application.server.url:unknown}")
     private String smirkUrl;
     @Autowired
     MedicalRecordRepository medicalRecordRepository;
