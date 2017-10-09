@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.apache.commons.codec.binary.Base64;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,7 +40,8 @@ public class DatabaseService {
     private String adminUsername;
     @Value("${smirk.backdoor.defaultadmin.password:unknown}")
     private String adminPassword;
-
+    @Value("${smirk.backdoor.ip:unknown}")
+    private String smirkUrl;
     @Autowired
     MedicalRecordRepository medicalRecordRepository;
     @Autowired
@@ -77,10 +78,7 @@ public class DatabaseService {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public String parseCommandline(String... args) {
-        String smirkHost = smirkHost = "http://"
-                + "127.0.0.1"
-                + ":" + "8080";
+    public String parseCommandline(String... args) throws FileNotFoundException, UnsupportedEncodingException {
         String url="";
         String smirkService="";
         String returnedDataFromAPI = "";
@@ -1262,11 +1260,11 @@ public class DatabaseService {
 
                 case "getBackupCfg":
                     smirkService = "/getBackupCfg";
-                    url = smirkHost + smirkService;
+                    url = smirkUrl+smirkService;
 
                     // Create HTTP headers that specify the auth for this request and the content type
                     HttpHeaders httpHeaders = new HttpHeaders();
-                    String auth = "sysad" + ":" + "1234567891234567";
+                    String auth = adminUsername + ":" + adminPassword;
                     byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")) );
                     String authHeader = "Basic " + new String( encodedAuth );
                     httpHeaders.set("Authorization", authHeader);
@@ -1315,10 +1313,10 @@ public class DatabaseService {
                 case "loadBackupCfg":
                     System.out.println("loadBackupCfg");
                     smirkService = "/loadBackupCfg";
-                    url = smirkHost + smirkService;
+                    url = smirkUrl+smirkService;
                     // Create HTTP headers that specify the auth for this request and the content type
                     HttpHeaders httpHeaders1 = new HttpHeaders();
-                    String auth1 = "sysad" + ":" + "1234567891234567";
+                    String auth1 = adminUsername + ":" + adminPassword;
                     byte[] encodedAuth1 = Base64.encodeBase64(auth1.getBytes(Charset.forName("US-ASCII")));
                     String authHeader1 = "Basic " + new String(encodedAuth1);
                     httpHeaders1.set("Authorization", authHeader1);
@@ -1349,9 +1347,51 @@ public class DatabaseService {
                     break;
                 case "DumpDB":
                     System.out.println("DumpDB");
+                    String dump="";
+                    smirkService = "/dumpDb";
+                    url = smirkUrl+smirkService;
+                    System.out.println(url);
+
+                    // Create HTTP headers that specify the auth for this request and the content type
+                    HttpHeaders httpHeaders2 = new HttpHeaders();
+                    String auth2 = adminUsername + ":" + adminPassword;
+                    byte[] encodedAuth2 = Base64.encodeBase64(auth2.getBytes(Charset.forName("US-ASCII")) );
+                    String authHeader2 = "Basic " + new String( encodedAuth2 );
+                    httpHeaders2.set("Authorization", authHeader2);
+                    httpHeaders2.set("Content-Type", "application/json");
+
+                    // create request with http headers
+                    HttpEntity<String> postHeaders2 = new HttpEntity <String> (httpHeaders2);
+
+                    // actually GET the API and get a string array back
+                    System.out.println("before try");
+                    try {
+                        RestTemplate r1 = new RestTemplate();
+                        ResponseEntity<String> httpEntityResponse = r1.exchange(url,
+                                HttpMethod.GET,
+                                postHeaders2,
+                                String.class);
+                        dump = httpEntityResponse.getBody();
+                        System.out.println("recieved dump");
+
+                    }
+
+                    catch (HttpClientErrorException e)
+                    {
+                        System.out.println(e);
+                    }
+                    catch(Exception e)
+                    {
+                        System.out.println(e);
+                    }
+                    PrintWriter writer = new PrintWriter("smirkDBDump.xml", "UTF-8");
+                    writer.println(dump);
+                    System.out.println(dump);
+                    writer.close();
                     break;
                 default:
                     System.out.println("Invalid commandline, options are: <setITAdmin|loadData|getBackupCfg|loadBackupCfg|DumpDB");
+                    break;
             }
         } else {
             System.out.println("No commandline parameters specified.");
