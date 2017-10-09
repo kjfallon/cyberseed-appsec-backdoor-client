@@ -1,6 +1,7 @@
 package edu.syr.cyberseed.sage.sagebackdoorclient.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.*;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.*;
 import edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.DoctorExamRecord;
@@ -142,8 +143,24 @@ public class DatabaseService {
                     }
 
                     // Parse the file via inputstream
-                    XStream xstream = new XStream();
-                    XStream.setupDefaultSecurity(xstream); // to be removed after 1.5
+                    XStream xstream = new XStream() {
+                        @Override
+                        protected MapperWrapper wrapMapper(MapperWrapper next) {
+                            return new MapperWrapper(next) {
+                                @Override
+                                public boolean shouldSerializeMember(Class definedIn, String fieldName) {
+                                    if (definedIn == Object.class) {
+                                        System.out.println("Error unable to load <" + fieldName + ">value</" + fieldName + ">");
+                                        return false;
+                                    } else {
+                                        return super.shouldSerializeMember(definedIn, fieldName);
+                                    }
+                                }
+                            };
+                        }
+                    };
+
+                    XStream.setupDefaultSecurity(xstream);
                     xstream.allowTypesByWildcard(new String[]{
                             "edu.syr.cyberseed.sage.sagebackdoorclient.entities.xml.**"
                     });
