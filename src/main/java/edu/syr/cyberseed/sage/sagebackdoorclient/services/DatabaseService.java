@@ -1354,7 +1354,7 @@ public class DatabaseService {
 
                     // Create HTTP headers that specify the auth for this request and the content type
                     HttpHeaders httpHeaders2 = new HttpHeaders();
-                    String auth2 = adminUsername + ":" + adminPassword;
+                    String auth2 = adminUsername+ ":" +adminPassword;
                     byte[] encodedAuth2 = Base64.encodeBase64(auth2.getBytes(Charset.forName("US-ASCII")) );
                     String authHeader2 = "Basic " + new String( encodedAuth2 );
                     httpHeaders2.set("Authorization", authHeader2);
