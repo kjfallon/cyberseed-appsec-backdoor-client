@@ -1,7 +1,7 @@
 BUILDING:
 
 This project is written in Java.  This project contains many java source code files (class files) and includes
-dependencies on many open source java libraries.   Java source code must be compiled with a Java compiler into bytecode and
+dependencies on many open source Java libraries.   Java source code must be compiled with a Java compiler into bytecode and
 then executed in in a Java Virtual Machine (JVM).
 
 We have made this very simple to do using Maven which is the most popualar build tool for Java. Maven will download
