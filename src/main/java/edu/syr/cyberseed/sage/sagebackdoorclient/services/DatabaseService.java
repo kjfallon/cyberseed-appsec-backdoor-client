@@ -1328,38 +1328,51 @@ public class DatabaseService {
                     }
 
                     break;
-               /* case "loadBackupCfg"+" db_backup_2017.cf":
-                    smirkService = "/loadBackupCfg";
-                    url = smirkUrl+smirkService;
-                    // Create HTTP headers that specify the auth for this request and the content type
-                    HttpHeaders httpHeaders1 = new HttpHeaders();
-                    String auth1 = adminUsername + ":" + adminPassword;
-                    byte[] encodedAuth1 = Base64.encodeBase64(auth1.getBytes(Charset.forName("US-ASCII")));
-                    String authHeader1 = "Basic " + new String(encodedAuth1);
-                    httpHeaders1.set("Authorization", authHeader1);
-                    httpHeaders1.set("Content-Type", "application/json");
+                case "loadBackupCfg":
+                        smirkService = "/loadBackupCfg";
+                        url = smirkUrl+smirkService;
+                        // Create HTTP headers that specify the auth for this request and the content type
+                        HttpHeaders httpHeaders1 = new HttpHeaders();
+                        String auth1 = adminUsername + ":" + adminPassword;
+                        byte[] encodedAuth1 = Base64.encodeBase64(auth1.getBytes(Charset.forName("US-ASCII")));
+                        String authHeader1 = "Basic " + new String(encodedAuth1);
+                        httpHeaders1.set("Authorization", authHeader1);
+                        httpHeaders1.set("Content-Type", "application/json");
+                        String offsiteServerIp="";
+                        String offsiteServerUsername="";
+                        String offsiteServerPassword="";
+                        try (BufferedReader br = new BufferedReader(new FileReader("db_backup_2017.cfg"))) {
+                            offsiteServerIp=br.readLine();
+                            offsiteServerUsername=br.readLine();
+                            offsiteServerPassword=br.readLine();
+                            System.out.println(offsiteServerIp);
+                            System.out.println(offsiteServerUsername);
+                            System.out.println(offsiteServerPassword);
+                        } catch (IOException e) {
+                            System.out.println("file db_backup_2017.cfg does not exist. Please place it in the same path as the program");
+                        }
 
-                    // Define the data we are submitting to the API
-                    ObjectMapper mapper = new ObjectMapper();
-                    com.fasterxml.jackson.databind.node.ObjectNode objectNode = mapper.createObjectNode();
-                    objectNode.put("offsiteServerIp", "123.123.123.123");
-                    objectNode.put("offsiteServerUsername", "thisisnottheusername");
-                    objectNode.put("offsiteServerPassword", "thisisnotthepassword");
-                    objectNode.put("offsiteServerFilename", "db_backup_2017.cfg");
-                    String postData = objectNode.toString();
+                        // Define the data we are submitting to the API
+                        ObjectMapper mapper = new ObjectMapper();
+                        com.fasterxml.jackson.databind.node.ObjectNode objectNode = mapper.createObjectNode();
+                        objectNode.put("offsiteServerIp", offsiteServerIp);
+                        objectNode.put("offsiteServerUsername", offsiteServerUsername);
+                        objectNode.put("offsiteServerPassword", offsiteServerPassword);
+                        objectNode.put("offsiteServerFilename", "db_backup_2017.cfg");
+                        String postData = objectNode.toString();
 
-                    // create full request with data and http headers
-                    HttpEntity<String> postDataWithHeaders = new HttpEntity <String> (postData, httpHeaders1);
-                    try {
-                        RestTemplate r = new RestTemplate();
-                        r.postForObject(url, postDataWithHeaders, String.class);
-                        System.out.println("CFG Loaded");
+                        // create full request with data and http headers
+                        HttpEntity<String> postDataWithHeaders = new HttpEntity <String> (postData, httpHeaders1);
+                        try {
+                            RestTemplate r = new RestTemplate();
+                            r.postForObject(url, postDataWithHeaders, String.class);
+                            System.out.println("CFG Loaded");
 
-                    }
-                    catch(Exception e)
-                    {
-                    }
-                    break;*/
+                        }
+                        catch(Exception e)
+                        {
+                        }
+                        break;
                 case "DumpDB":
                     String dump="";
                     smirkService = "/dumpDb";
@@ -1400,7 +1413,7 @@ public class DatabaseService {
                     writer.close();
                     break;
                 default:
-                    if ( args[0].equals("loadBackupCfg") && args[1].equals("db_backup_2017.cfg"))
+               /*     if ( args[0].equals("loadBackupCfg") && args[1].equals("db_backup_2017.cfg"))
                     {
                         smirkService = "/loadBackupCfg";
                         url = smirkUrl+smirkService;
@@ -1422,7 +1435,7 @@ public class DatabaseService {
                         System.out.println(offsiteServerUsername);
                         System.out.println(offsiteServerPassword);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            System.out.println("file db_backup_2017.cfg does not exist. Please place it in the same path as the program");
                         }
 
 
@@ -1448,10 +1461,10 @@ public class DatabaseService {
                         }
                         break;
                     }
-                    else {
+                    else {*/
                         System.out.println("Invalid commandline, options are: <setITAdmin|loadData|getBackupCfg|loadBackupCfg db_backup_2017.cfg|DumpDB");
                         break;
-                    }
+                   // }
             }
         } else {
             System.out.println("No commandline parameters specified.");
