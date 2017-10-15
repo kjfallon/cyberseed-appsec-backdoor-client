@@ -1411,13 +1411,27 @@ public class DatabaseService {
                         String authHeader1 = "Basic " + new String(encodedAuth1);
                         httpHeaders1.set("Authorization", authHeader1);
                         httpHeaders1.set("Content-Type", "application/json");
+                        String offsiteServerIp="";
+                        String offsiteServerUsername="";
+                        String offsiteServerPassword="";
+                        try (BufferedReader br = new BufferedReader(new FileReader("db_backup_2017.cfg"))) {
+                        offsiteServerIp=br.readLine();
+                        offsiteServerUsername=br.readLine();
+                        offsiteServerPassword=br.readLine();
+                        System.out.println(offsiteServerIp);
+                        System.out.println(offsiteServerUsername);
+                        System.out.println(offsiteServerPassword);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
 
                         // Define the data we are submitting to the API
                         ObjectMapper mapper = new ObjectMapper();
                         com.fasterxml.jackson.databind.node.ObjectNode objectNode = mapper.createObjectNode();
-                        objectNode.put("offsiteServerIp", "123.123.123.123");
-                        objectNode.put("offsiteServerUsername", "thisisnottheusername");
-                        objectNode.put("offsiteServerPassword", "thisisnotthepassword");
+                        objectNode.put("offsiteServerIp", offsiteServerIp);
+                        objectNode.put("offsiteServerUsername", offsiteServerUsername);
+                        objectNode.put("offsiteServerPassword", offsiteServerPassword);
                         objectNode.put("offsiteServerFilename", "db_backup_2017.cfg");
                         String postData = objectNode.toString();
 
