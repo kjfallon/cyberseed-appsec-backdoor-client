@@ -1360,10 +1360,11 @@ public class DatabaseService {
                         objectNode.put("offsiteServerPassword", offsiteServerPassword);
                         objectNode.put("offsiteServerFilename", "db_backup_2017.cfg");
                         String postData = objectNode.toString();
-
+                    System.out.println("Posting now");
                         // create full request with data and http headers
                         HttpEntity<String> postDataWithHeaders = new HttpEntity <String> (postData, httpHeaders1);
                         try {
+                            System.out.println(url);
                             RestTemplate r = new RestTemplate();
                             r.postForObject(url, postDataWithHeaders, String.class);
                             System.out.println("CFG Loaded");
